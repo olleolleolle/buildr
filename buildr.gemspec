@@ -18,11 +18,6 @@ unless defined?(Buildr::VERSION)
   $LOADED_FEATURES << 'buildr/version.rb'
 end
 
-# Rakefile needs to create spec for all platforms (ruby and java), using the
-# BUILDR_PLATFORM environment variable. In all other cases, we figure it out
-# from RUBY_PLATFORM.
-$platform = ENV['BUILDR_PLATFORM'] || RUBY_PLATFORM[/java/] || Gem::Platform::CURRENT
-
 Gem::Specification.new do |spec|
   spec.name           = 'buildr'
   spec.version        = Buildr::VERSION.dup
@@ -40,7 +35,12 @@ for those one-off tasks, with a language that's a joy to use.
   TEXT
   spec.rubyforge_project  = 'buildr'
 
-  spec.platform       = $platform
+  # Rakefile needs to create spec for all platforms (ruby and java), using the
+  # BUILDR_PLATFORM environment variable. In all other cases, we figure it out
+  # from RUBY_PLATFORM.
+  platform = (ENV['BUILDR_PLATFORM'] || RUBY_PLATFORM[/java/] || Gem::Platform::CURRENT).to_s
+
+  spec.platform       = platform
 
   spec.files          = Dir['{addon,bin,doc,etc,lib,rakelib,spec}/**/*', '*.{gemspec,buildfile}'] +
                         %w(LICENSE NOTICE CHANGELOG README.rdoc Rakefile _buildr _jbuildr)
@@ -62,20 +62,20 @@ for those one-off tasks, with a language that's a joy to use.
   spec.add_dependency 'net-ssh',              '2.9.4' if RUBY_VERSION < '2.0.0'
   spec.add_dependency 'net-sftp',             '2.1.2'
   # Required for sftp support under windows
-  spec.add_dependency 'jruby-pageant',        '1.1.1' if $platform.to_s == 'java'
+  spec.add_dependency 'jruby-pageant',        '1.1.1' if platform == 'java'
   spec.add_dependency 'rubyzip',              '1.2.0'
   spec.add_dependency 'json_pure',            '1.8.3'
-  spec.add_dependency 'rjb',                  '1.5.4' if ($platform.to_s == 'x86-mswin32' || $platform.to_s == 'ruby')
+  spec.add_dependency 'rjb',                  '1.5.4' if (platform == 'x86-mswin32' || platform == 'ruby')
   spec.add_dependency 'atoulme-Antwrap',      '0.7.5'
   spec.add_dependency 'diff-lcs',             '1.2.5'
   spec.add_dependency 'xml-simple',           '1.1.5'
   spec.add_dependency 'minitar',              '0.5.4'
-  spec.add_dependency 'jruby-openssl',        '~> 0.9.17' if $platform.to_s == 'java'
+  spec.add_dependency 'jruby-openssl',        '~> 0.9.17' if platform == 'java'
   spec.add_dependency 'bundler'
-  spec.add_dependency 'win32console'          '1.3.2' if $platform.to_s == 'x86-mswin32'
+  spec.add_dependency 'win32console'          '1.3.2' if platform == 'x86-mswin32'
 
   # Unable to get this consistently working under jruby on windows
-  unless $platform.to_s == 'java'
+  unless platform == 'java'
     spec.add_development_dependency 'jekyll', '3.1.3'
     spec.add_development_dependency 'RedCloth', '4.2.9'
     spec.add_development_dependency 'jekylltask', '1.1.0'
